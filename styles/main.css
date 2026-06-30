@@ -1,0 +1,471 @@
+/* ═════════════════════════════════════════════════════════════════════
+   TRAINCORE FITNESS DASHBOARD - MAIN STYLESHEET
+   A dark-themed fitness tracking dashboard with Strava integration
+   
+   This file contains all styling for the dashboard including:
+   - Color scheme and CSS variables
+   - Header and navigation
+   - Summary stats cards
+   - Running tracking
+   - Lifting logging
+   - Maps and charts
+   - Modals and forms
+   ═════════════════════════════════════════════════════════════════════ */
+
+/* ─── COLOR SCHEME - CSS VARIABLES ─────────────────────────────────────
+   Dark theme with professional blue accent. Change these variables to
+   customize the entire dashboard appearance globally.
+   ──────────────────────────────────────────────────────────────────── */
+:root {
+  --bg: #0d0f14;              /* Main page background - very dark */
+  --surface: #151820;         /* Card backgrounds */
+  --surface2: #1c2030;        /* Secondary surface - lighter than surface */
+  --border: #252a3a;          /* Dividers and borders */
+  --teal: #1E7FD6;            /* PRIMARY ACCENT - lighter professional blue */
+  --teal-dim: #1566B0;        /* Muted blue for subtle borders */
+  --teal-glow: rgba(30,127,214,0.12); /* Blue with transparency */
+  --orange: #ff6b35;          /* Strava brand color */
+  --purple: #8b7cf8;          /* Accent purple (unused currently) */
+  --text: #e8ecf4;            /* Main text color - light blue-white */
+  --text-muted: #7a8499;      /* Secondary text - muted gray-blue */
+  --text-dim: #4a5268;        /* Dimmed text - subtle labels */
+  --green: #3ddc97;           /* Zone 2 compliance indicator */
+  --red: #ff5e6c;             /* Error/non-zone2 indicator */
+  --yellow: #ffd166;          /* Warning/near-target indicator */
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { 
+  background: var(--bg); 
+  color: var(--text); 
+  font-family: 'Poppins', sans-serif; 
+  min-height: 100vh; 
+}
+
+/* ─── TOP HEADER - Logo & Navigation ────────────────────────────────
+   Sticky header at top. Contains branding + current week + Strava button
+   ──────────────────────────────────────────────────────────────────── */
+.header {
+  padding: 20px 28px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;  /* Stays visible when scrolling */
+  background: rgba(13,15,20,0.92);        /* Slightly transparent */
+  backdrop-filter: blur(12px);            /* Frosted glass effect */
+}
+.logo { display: flex; align-items: center; gap: 10px; }
+.logo-icon { width: 32px; height: 32px; background: var(--teal); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.logo-text { font-weight: 700; font-size: 1rem; letter-spacing: 0.05em; }
+.logo-text span { color: var(--teal); }  /* "CORE" part in accent color */
+.header-right { display: flex; align-items: center; gap: 12px; }
+.week-badge { background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 5px 14px; font-size: 0.75rem; color: var(--text-muted); font-family: 'Space Mono', monospace; }
+
+/* Settings button */
+.settings-btn {
+  background: none; border: none; color: var(--text-muted); cursor: pointer;
+  font-size: 1.2rem; padding: 4px 8px; border-radius: 6px;
+  transition: all 0.2s;
+}
+.settings-btn:hover { color: var(--teal); background: var(--surface2); }
+
+/* Strava connection button - changes style when connected */
+.strava-btn {
+  display: flex; align-items: center; gap: 8px;
+  background: #fc4c02; color: #fff;      /* Strava orange by default */
+  border: none; border-radius: 8px;
+  padding: 8px 16px; font-size: 0.8rem; font-weight: 600;
+  cursor: pointer; font-family: 'Poppins', sans-serif;
+  transition: opacity 0.2s;
+}
+.strava-btn:hover { opacity: 0.85; }
+.strava-btn.connected {                 /* When successfully connected */
+  background: var(--surface2);           /* Change to teal theme */
+  border: 1px solid var(--teal); 
+  color: var(--teal); 
+}
+.strava-logo { font-size: 1rem; }
+
+/* ─── SUMMARY STATISTICS - 6 Key Metrics ────────────────────────
+   Grid at top showing: Distance, Runs, Lifts, Cadence, Elevation, HR
+   ──────────────────────────────────────────────────────────────────── */
+.summary-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 28px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 20px;
+  position: relative;
+  overflow: hidden;
+}
+.stat-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--teal), transparent);  /* Teal top accent */
+  opacity: 0.6;
+}
+.stat-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+.stat-value { font-size: 1.8rem; font-weight: 700; font-family: 'Space Mono', monospace; color: var(--text); line-height: 1; }
+.stat-value span { font-size: 0.9rem; color: var(--text-muted); font-weight: 400; }
+.stat-sub { font-size: 0.72rem; color: var(--text-muted); margin-top: 4px; }
+.stat-accent { color: var(--teal) !important; }  /* Use for highlighted values */
+
+/* ─── SECTION HEADERS - Used throughout dashboard ──────────────────
+   Small header with colored dot + title text
+   ──────────────────────────────────────────────────────────────────── */
+.section-header {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 16px;
+}
+.section-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); }
+.section-dot.orange { background: var(--orange); }  /* Use orange for lifting */
+.section-title { font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted); }
+
+/* ─── LAYOUT HELPERS ─────────────────────────────────────────────────
+   Grid containers for responsive layout
+   ──────────────────────────────────────────────────────────────────── */
+.container { max-width: 1200px; margin: 0 auto; padding: 28px 20px; }
+.two-col { display: grid; grid-template-columns: 1.2fr 1fr; gap: 20px; margin-bottom: 20px; }
+.full-col { margin-bottom: 20px; }
+
+/* ─── CARDS - Generic container for content ──────────────────────────
+   White-on-dark bordered boxes that group related content
+   ──────────────────────────────────────────────────────────────────── */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 22px;
+}
+
+/* ─── PROGRESS BARS - Used for distance goals & zone 2 compliance ────
+   Animated bars showing progress towards targets
+   ──────────────────────────────────────────────────────────────────── */
+.goal-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.goal-label { font-size: 0.78rem; color: var(--text-muted); }
+.goal-val { font-size: 0.78rem; font-family: 'Space Mono', monospace; color: var(--teal); }
+.bar-track { height: 6px; background: var(--surface2); border-radius: 99px; overflow: hidden; margin-bottom: 18px; }
+.bar-fill { 
+  height: 100%; 
+  background: linear-gradient(90deg, var(--teal-dim), var(--teal));  /* Teal gradient */
+  border-radius: 99px; 
+  transition: width 0.8s ease;  /* Smooth animation when value updates */
+}
+
+/* ─── INDIVIDUAL RUN ITEMS - Running section list ──────────────────
+   Each run shows: Name, Date, Distance, Pace, Elevation, HR, Cadence, Zone 2
+   ──────────────────────────────────────────────────────────────────── */
+.runs-list { display: flex; flex-direction: column; gap: 8px; }
+.run-item {
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  transition: background 0.2s, border-color 0.2s, transform 0.2s;
+}
+.run-item:hover {
+  background: var(--border);
+  border-color: var(--teal-dim);
+  transform: translateY(-2px);
+}
+.run-left { display: flex; align-items: center; gap: 12px; }
+.run-icon { font-size: 1rem; }
+.run-date { font-size: 0.72rem; color: var(--text-muted); }
+.run-name { font-size: 0.85rem; font-weight: 500; }
+.run-stats { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.run-stat { font-family: 'Space Mono', monospace; font-size: 0.75rem; }
+.run-stat .label { color: var(--text-muted); font-size: 0.65rem; display: block; }
+.z2-badge {  /* Zone 2 indicator badge - shows if run was aerobic */
+  font-size: 0.62rem; font-weight: 600; text-transform: uppercase;
+  padding: 2px 7px; border-radius: 99px; letter-spacing: 0.08em;
+}
+.z2-yes { background: rgba(61,220,151,0.15); color: var(--green); }   /* Green when in Zone 2 */
+.z2-no { background: rgba(255,94,108,0.12); color: var(--red); }     /* Red when not in Zone 2 */
+
+/* ─── ZONE 2 TRACKING CARD - Zone 2 optimization metrics ──────────────
+   Shows Zone 2 distribution and compliance tracking
+   ──────────────────────────────────────────────────────────────────── */
+.zone-stat { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.zone-stat-label { font-size: 0.75rem; color: var(--text-muted); }
+.zone-stat-value { font-size: 0.9rem; font-weight: 600; color: var(--text); font-family: 'Space Mono', monospace; }
+.zone-distribution { display: flex; gap: 4px; margin-top: 8px; }
+.zone-bar { flex: 1; height: 20px; border-radius: 4px; position: relative; }
+.zone-bar.z1 { background: var(--orange); opacity: 0.7; }  /* Zone 1 = Orange */
+.zone-bar.z2 { background: var(--green); opacity: 0.8; }   /* Zone 2 = Green */
+.zone-bar.z3 { background: var(--yellow); opacity: 0.7; }  /* Zone 3 = Yellow */
+.zone-bar.z4 { background: #ff6b9d; opacity: 0.7; }        /* Zone 4 = Pink */
+.zone-bar.z5 { background: var(--red); opacity: 0.8; }     /* Zone 5 = Red */
+.zone-bar span { font-size: 0.6rem; color: white; display: flex; align-items: center; justify-content: center; height: 100%; font-weight: 600; }
+
+/* ─── CADENCE TREND CHART - Last 7 runs visualization ────────────────
+   Mini bar chart showing cadence (steps/min) for recent runs
+   Colors: Teal = 170+ (target), Yellow = 160-169, Red = <160
+   ──────────────────────────────────────────────────────────────────── */
+.cadence-chart { display: flex; align-items: flex-end; gap: 6px; height: 70px; margin-top: 4px; }
+.cad-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.cad-bar { width: 100%; border-radius: 4px 4px 0 0; transition: height 0.6s ease; }
+.cad-label { font-size: 0.6rem; color: var(--text-dim); font-family: 'Space Mono', monospace; }
+
+/* ─── LIFTING SECTION - Exercise logging interface ──────────────────
+   Tabs for A/B workout days, exercise list, add/delete buttons
+   ──────────────────────────────────────────────────────────────────── */
+.lift-week { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.lift-week-label { font-size: 0.78rem; color: var(--text-muted); }
+.add-btn {  /* "+ Add Exercise" button */
+  display: flex; align-items: center; gap: 5px;
+  background: var(--teal-glow); border: 1px solid var(--teal-dim);
+  color: var(--teal); border-radius: 7px;
+  padding: 5px 12px; font-size: 0.75rem; font-weight: 600;
+  cursor: pointer; font-family: 'Poppins', sans-serif;
+  transition: background 0.2s;
+}
+.add-btn:hover { background: rgba(30,127,214,0.18); }
+.session-tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+.session-tab {
+  padding: 6px 14px; border-radius: 8px; font-size: 0.78rem; font-weight: 600;
+  cursor: pointer; border: 1px solid var(--border);
+  background: var(--surface2); color: var(--text-muted);
+  transition: all 0.2s; font-family: 'Poppins', sans-serif;
+}
+.session-tab.active {  /* Highlighted when selected */
+  background: var(--teal-glow); border-color: var(--teal); color: var(--teal); 
+}
+.exercise-list { display: flex; flex-direction: column; gap: 8px; }
+.exercise-item {  /* Individual exercise card */
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px 14px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.ex-name { font-size: 0.85rem; font-weight: 500; }
+.ex-sets { font-size: 0.72rem; color: var(--text-muted); margin-top: 2px; font-family: 'Space Mono', monospace; }
+.ex-vol { font-family: 'Space Mono', monospace; font-size: 0.78rem; color: var(--orange); }
+.ex-progression { font-size: 0.7rem; color: var(--green); font-weight: 600; margin-top: 2px; }
+.del-btn { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 0.9rem; padding: 2px 6px; border-radius: 4px; transition: color 0.2s; }
+.del-btn:hover { color: var(--red); }
+
+/* ─── LIFTING PROGRESSION - Personal records and progress tracking ────
+   Shows PRs and progression history for exercises
+   ──────────────────────────────────────────────────────────────────── */
+.progression-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  margin-top: 12px;
+}
+.progression-header { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px; }
+.progression-stat { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.8rem; }
+.progression-label { color: var(--text-muted); }
+.progression-value { color: var(--teal); font-family: 'Space Mono', monospace; font-weight: 600; }
+.pr-badge { background: rgba(255,107,53,0.15); color: var(--orange); padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: 600; }
+
+/* ─── MODAL DIALOG - Add Exercise form popup ──────────────────────────
+   Centered modal overlay for entering new exercise data
+   ──────────────────────────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 999; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 18px; padding: 28px; width: 100%; max-width: 400px;
+  transform: translateY(20px); transition: transform 0.2s;
+}
+.modal-overlay.open .modal { transform: translateY(0); }
+.modal-title { font-size: 1rem; font-weight: 700; margin-bottom: 18px; }
+.modal-close {
+  position: absolute; top: 16px; right: 16px;
+  width: 28px; height: 28px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; color: var(--text-muted); font-size: 1.2rem;
+  transition: background 0.2s, color 0.2s;
+}
+.modal-close:hover { background: var(--border); color: var(--text); }
+
+/* ── ACTIVITY DETAIL MODAL - Click on run to view detailed stats ── */
+.activity-detail-modal { max-width: 500px; position: relative; }
+.activity-detail-header { margin-bottom: 24px; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
+.activity-detail-title h2 { font-size: 1.1rem; margin-bottom: 6px; }
+.activity-detail-date { font-size: 0.78rem; color: var(--text-muted); }
+.activity-detail-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px;
+}
+.detail-stat-box {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 16px; text-align: center;
+  transition: background 0.2s, border-color 0.2s;
+}
+.detail-stat-box:hover { background: var(--border); }
+.detail-stat-box.z2-box { border-color: var(--green); background: rgba(61,220,151,0.08); }
+.detail-stat-box.z2-box:hover { background: rgba(61,220,151,0.12); }
+.detail-stat-label { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.detail-stat-value {
+  font-size: 1.2rem; font-weight: 700; color: var(--teal);
+  font-family: 'Space Mono', monospace;
+}
+.detail-stat-value span { font-size: 0.75rem; color: var(--text-muted); margin-left: 4px; }
+.pace-sec { font-size: 0.9rem; }
+.z2-status { color: var(--green); }
+.nonz2-status { color: var(--orange); }
+.activity-detail-actions { padding-top: 16px; border-top: 1px solid var(--border); }
+.detail-link-btn {
+  display: inline-block; background: var(--teal); color: #0d0f14;
+  padding: 10px 16px; border-radius: 8px; text-decoration: none;
+  font-weight: 600; font-size: 0.85rem; transition: opacity 0.2s;
+}
+.detail-link-btn:hover { opacity: 0.85; }
+
+.form-group { margin-bottom: 14px; }
+.form-label { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 5px; display: block; }
+.form-input {
+  width: 100%; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 9px 12px; color: var(--text);
+  font-family: 'Poppins', sans-serif; font-size: 0.85rem;
+  outline: none; transition: border-color 0.2s;
+}
+.form-input:focus { border-color: var(--teal); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+.btn-primary {
+  flex: 1; background: var(--teal); color: #0d0f14;
+  border: none; border-radius: 9px; padding: 10px;
+  font-weight: 700; font-size: 0.85rem; cursor: pointer;
+  font-family: 'Poppins', sans-serif; transition: opacity 0.2s;
+}
+.btn-primary:hover { opacity: 0.85; }
+.btn-secondary {
+  flex: 1; background: var(--surface2); color: var(--text-muted);
+  border: 1px solid var(--border); border-radius: 9px; padding: 10px;
+  font-weight: 500; font-size: 0.85rem; cursor: pointer;
+  font-family: 'Poppins', sans-serif; transition: background 0.2s;
+}
+.btn-secondary:hover { background: var(--border); }
+
+/* ── STRAVA SETUP BOX - 3-step API credential instructions ── */
+.setup-box {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 20px; margin-bottom: 14px;
+}
+.setup-box h3 { font-size: 0.9rem; font-weight: 600; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.setup-steps { counter-reset: steps; display: flex; flex-direction: column; gap: 8px; }
+.setup-step { 
+  counter-increment: steps; 
+  display: flex; align-items: flex-start; gap: 10px; 
+  font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; 
+}
+.setup-step::before { 
+  content: counter(steps);  /* Auto-numbering: 1, 2, 3... */
+  min-width: 20px; height: 20px; 
+  background: var(--teal-glow); border: 1px solid var(--teal-dim); 
+  border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+  font-size: 0.65rem; font-weight: 700; color: var(--teal); 
+  flex-shrink: 0; 
+}
+.setup-step a { color: var(--teal); text-decoration: none; }
+.setup-step a:hover { text-decoration: underline; }
+.input-group { display: flex; gap: 8px; margin-top: 14px; }
+.input-group .form-input { flex: 1; }
+.save-btn {  /* Save Credentials button */
+  background: var(--teal); color: #0d0f14;
+  border: none; border-radius: 8px; padding: 9px 16px;
+  font-weight: 700; font-size: 0.8rem; cursor: pointer;
+  font-family: 'Poppins', sans-serif; white-space: nowrap;
+}
+
+/* ─── EMPTY STATE & LOADING ──────────────────────────────────────── */
+.empty-state { text-align: center; padding: 30px 20px; color: var(--text-dim); font-size: 0.82rem; }
+.empty-state .icon { font-size: 2rem; margin-bottom: 8px; }
+.loading { text-align: center; padding: 20px; color: var(--text-muted); font-size: 0.8rem; }
+.spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid var(--border); border-top-color: var(--teal); border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; margin-right: 8px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.error-msg { background: rgba(255,94,108,0.1); border: 1px solid rgba(255,94,108,0.3); border-radius: 10px; padding: 12px 16px; font-size: 0.8rem; color: var(--red); margin-bottom: 12px; }
+
+/* ─── MAP - Running route visualization ───────────────────────────────
+   Leaflet map showing all runs from the week
+   ──────────────────────────────────────────────────────────────────── */
+#runMap {
+  width: 100%;
+  height: 350px;
+  border-radius: 14px;
+  margin-top: 12px;
+}
+.leaflet-container { border-radius: 14px; }
+.map-legend {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 8px;
+  text-align: center;
+}
+
+/* ─── SETTINGS MODAL - Field visibility customization ────────────────── */
+.settings-modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  width: 280px;
+  z-index: 1000;
+  display: none;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+.settings-modal.open { display: block; }
+.settings-modal-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+  letter-spacing: 0.1em;
+}
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.settings-section:last-child { border-bottom: none; }
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+.checkbox-group input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--teal);
+}
+.checkbox-label {
+  font-size: 0.8rem;
+  color: var(--text);
+  cursor: pointer;
+}
+
+/* ── RESPONSIVE - Mobile breakpoints ── */
+@media (max-width: 768px) {
+  .summary-strip { grid-template-columns: repeat(2, 1fr); }
+  .two-col { grid-template-columns: 1fr; }
+  .header { padding: 14px 16px; }
+  .container { padding: 16px; }
+}
+@media (max-width: 480px) {
+  .summary-strip { grid-template-columns: 1fr; }
+  .stat-value { font-size: 1.4rem; }
+}

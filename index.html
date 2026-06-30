@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TRAINCORE - Fitness Dashboard</title>
+  
+  <!-- ═══════════════════════════════════════════════════════════════════
+       EXTERNAL DEPENDENCIES
+       ═══════════════════════════════════════════════════════════════════ -->
+  
+  <!-- Google Fonts: Poppins (UI) and Space Mono (monospace data) -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  
+  <!-- Leaflet.js: Open-source mapping library for route visualization -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  
+  <!-- Main stylesheet -->
+  <link rel="stylesheet" href="styles/main.css" />
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     HEADER - Logo, navigation, and Strava connection
+     ═══════════════════════════════════════════════════════════════════════════ -->
+<header class="header">
+  <div class="logo">
+    <div class="logo-icon">⚡</div>
+    <div class="logo-text">TRAIN<span>CORE</span></div>
+  </div>
+  <div class="header-right">
+    <div class="week-badge" id="weekBadge">Week —</div>
+    <div style="position:relative;">
+      <button class="settings-btn" id="settingsBtn" onclick="toggleSettings()" title="Settings">⚙️</button>
+      <div class="settings-modal" id="settingsModal">
+        <div class="settings-modal-title">Run Fields</div>
+        <div class="settings-section">
+          <label class="checkbox-group">
+            <input type="checkbox" id="showElev" checked onchange="updateFieldVisibility()">
+            <span class="checkbox-label">Elevation</span>
+          </label>
+          <label class="checkbox-group">
+            <input type="checkbox" id="showHR" checked onchange="updateFieldVisibility()">
+            <span class="checkbox-label">Heart Rate</span>
+          </label>
+          <label class="checkbox-group">
+            <input type="checkbox" id="showCadence" checked onchange="updateFieldVisibility()">
+            <span class="checkbox-label">Cadence</span>
+          </label>
+          <label class="checkbox-group">
+            <input type="checkbox" id="showZ2" checked onchange="updateFieldVisibility()">
+            <span class="checkbox-label">Zone 2 Badge</span>
+          </label>
+        </div>
+        <div class="settings-modal-title">Sections</div>
+        <div class="settings-section">
+          <label class="checkbox-group">
+            <input type="checkbox" id="showCadenceTrend" checked onchange="updateSectionVisibility()">
+            <span class="checkbox-label">Cadence Trend Chart</span>
+          </label>
+          <label class="checkbox-group">
+            <input type="checkbox" id="showMap" checked onchange="updateSectionVisibility()">
+            <span class="checkbox-label">Route Map</span>
+          </label>
+        </div>
+      </div>
+    </div>
+    <button class="strava-btn" id="stravaBtn" onclick="handleStravaClick()">
+      <span class="strava-logo">🔶</span>
+      <span id="stravaBtnText">Connect Strava</span>
+    </button>
+  </div>
+</header>
+
+<div class="container">
+  <!-- ─────────────────────────────────────────────────────────────────────
+       SUMMARY STATS - 6 key metrics (hidden until Strava connected)
+       ───────────────────────────────────────────────────────────────────── -->
+  <div class="summary-strip" id="summaryStrip" style="display:none;">
+    <div class="stat-card">
+      <div class="stat-label">Weekly Distance</div>
+      <div class="stat-value stat-accent" id="totalKm">—<span>km</span></div>
+      <div class="stat-sub" id="kmGoalSub">Goal: 30 km</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Runs This Week</div>
+      <div class="stat-value" id="runsCount">—</div>
+      <div class="stat-sub" id="runsSub">of 4 planned</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Lift Sessions</div>
+      <div class="stat-value" id="liftCount">—</div>
+      <div class="stat-sub">of 2 this week</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Avg Cadence</div>
+      <div class="stat-value" id="avgCadence">—<span>spm</span></div>
+      <div class="stat-sub" id="cadenceSub">Target: 170+</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Elevation Gain</div>
+      <div class="stat-value stat-accent" id="totalElevation">—<span>m</span></div>
+      <div class="stat-sub" id="elevationSub">vertical</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Avg Heart Rate</div>
+      <div class="stat-value" id="avgHeartRate">—<span>bpm</span></div>
+      <div class="stat-sub" id="hrSub">across runs</div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────────────────────────────
+       STRAVA SETUP - 3-step API credential instructions
+       ───────────────────────────────────────────────────────────────────── -->
+  <div id="stravaSetup" class="full-col">
+    <div class="card">
+      <div class="section-header">
+        <div class="section-dot"></div>
+        <div class="section-title">Connect Strava</div>
+      </div>
+      <div class="setup-box">
+        <h3>🔶 Strava API Setup (one-time, 3 minutes)</h3>
+        <div class="setup-steps">
+          <div class="setup-step">Go to <a href="https://www.strava.com/settings/api" target="_blank">strava.com/settings/api</a> and create an API application. Use any name and set the callback domain to <strong>localhost</strong>.</div>
+          <div class="setup-step">Copy your <strong>Client ID</strong> and <strong>Client Secret</strong> from the app settings page.</div>
+          <div class="setup-step">Paste them below and click Save. You'll be redirected to authorize access to your Strava data.</div>
+        </div>
+        <div class="form-row" style="margin-top:14px;">
+          <div style="grid-column:span 3">
+            <div class="form-row">
+              <div>
+                <label class="form-label">Client ID</label>
+                <input class="form-input" id="clientIdInput" placeholder="12345" />
+              </div>
+              <div>
+                <label class="form-label">Client Secret</label>
+                <input class="form-input" id="clientSecretInput" placeholder="abc123..." type="password" />
+              </div>
+              <div style="display:flex;align-items:flex-end;">
+                <button class="save-btn" style="width:100%" onclick="saveCredentials()">Save Credentials</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="credsSaved" style="display:none;margin-top:10px;font-size:0.78rem;color:var(--green);">✓ Credentials saved — redirecting to Strava...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────────────────────────────
+       RUNNING SECTION - Distance goal & run list
+       ───────────────────────────────────────────────────────────────────── -->
+  <div class="two-col" id="runningSection" style="display:none;">
+    <div class="card">
+      <div class="section-header">
+        <div class="section-dot"></div>
+        <div class="section-title">Running — This Week</div>
+      </div>
+      <div class="goal-row">
+        <span class="goal-label">Distance goal</span>
+        <span class="goal-val" id="goalText">0 / 30 km</span>
+      </div>
+      <div class="bar-track"><div class="bar-fill" id="goalBar" style="width:0%"></div></div>
+      <div class="runs-list" id="runsList">
+        <div class="loading"><span class="spinner"></span>Connect Strava to load your runs…</div>
+      </div>
+    </div>
+
+    <!-- Cadence Trend & Zone 2 -->
+    <div class="card">
+      <div class="section-header">
+        <div class="section-dot"></div>
+        <div class="section-title">Cadence Trend</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div style="font-size:0.72rem;color:var(--text-muted);">Last 7 activities · spm</div>
+        <div style="font-size:0.72rem;color:var(--teal);font-family:'Space Mono',monospace;" id="cadenceTarget">Target: 170 spm</div>
+      </div>
+      <div class="cadence-chart" id="cadenceChart">
+        <div class="empty-state" style="width:100%;font-size:0.78rem;">No data yet</div>
+      </div>
+      <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border);">
+        <div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:6px;">Zone 2 Compliance</div>
+        <div class="bar-track"><div class="bar-fill" id="z2Bar" style="width:0%;background:linear-gradient(90deg,#1566B0,var(--green))"></div></div>
+        <div style="font-size:0.72rem;color:var(--text-muted);margin-top:4px;" id="z2Pct">—% of runs in Z2</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────────────────────────────
+       ROUTE MAP - Interactive map of all weekly runs
+       ───────────────────────────────────────────────────────────────────── -->
+  <div class="card full-col" id="mapSection" style="display:none;">
+    <div class="section-header">
+      <div class="section-dot"></div>
+      <div class="section-title">Route Map</div>
+    </div>
+    <div id="runMap" style="display:none;"></div>
+    <div class="map-legend" id="mapLegend" style="display:none;">🔶 Each line represents a run • Zoom and pan to explore</div>
+    <div class="empty-state" id="mapEmpty" style="display:none;"><div class="icon">🗺️</div>No route data available</div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────────────────────────────
+       LIFTING SECTION - Exercise logging with progression tracking
+       ───────────────────────────────────────────────────────────────────── -->
+  <div class="card full-col" id="liftingSection" style="display:none;">
+    <div class="section-header" style="justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="section-dot orange"></div>
+        <div class="section-title">Lifting Log</div>
+      </div>
+      <button class="add-btn" onclick="openModal()">+ Add Exercise</button>
+    </div>
+    <div class="lift-week">
+      <div class="session-tabs">
+        <button class="session-tab active" onclick="switchSession('A', this)">Full Body A</button>
+        <button class="session-tab" onclick="switchSession('B', this)">Full Body B</button>
+      </div>
+      <div class="lift-week-label" id="liftVolume">Total volume: — kg</div>
+    </div>
+    <div class="exercise-list" id="exerciseList"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     MODAL - Add Exercise Form
+     ═══════════════════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-title">Add Exercise</div>
+    <div class="form-group">
+      <label class="form-label">Exercise Name</label>
+      <input class="form-input" id="exName" placeholder="e.g. Dumbbell Squat" />
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Sets</label>
+        <input class="form-input" id="exSets" type="number" placeholder="3" min="1" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Reps</label>
+        <input class="form-input" id="exReps" type="number" placeholder="12" min="1" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Weight (kg)</label>
+        <input class="form-input" id="exWeight" type="number" placeholder="20" min="0" step="0.5" />
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="addExercise()">Add Exercise</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     MODAL - Activity Detail (click on run to view)
+     ═══════════════════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="activityDetailModal" onclick="if(event.target===this) closeActivityDetail()">
+  <div class="modal activity-detail-modal">
+    <div class="modal-close" onclick="closeActivityDetail()" title="Close">✕</div>
+    <div class="activity-detail-content"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════
+     JAVASCRIPT - Load all script modules in order
+     ═══════════════════════════════════════════════════════════════════════════ -->
+
+<!-- State management and initialization -->
+<script src="scripts/init.js"></script>
+
+<!-- Strava API integration -->
+<script src="scripts/strava.js"></script>
+
+<!-- Zone 2 tracking and lifting progression -->
+<script src="scripts/progressionTracking.js"></script>
+
+<!-- UI rendering and utilities -->
+<script src="scripts/ui.js"></script>
+
+</body>
+</html>
