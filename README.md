@@ -26,16 +26,21 @@ A comprehensive fitness tracking dashboard that integrates with Strava to monito
 
 1. Go to [Strava API Settings](https://www.strava.com/settings/api)
 2. Create a new API application (use any name)
-3. Set callback domain to `localhost` (or your GitHub Pages URL when deployed)
+3. Set callback domain to `johnrypaulino.github.io`
 4. Copy your **Client ID** and **Client Secret**
 
-### 2. Run Locally
+### 2. Run Locally (Optional)
+
+**Note**: This dashboard is designed to run on GitHub Pages at https://johnrypaulino.github.io/TRAINCORE/
+
+For local development, you can still test it locally:
 
 **Option A: Python HTTP Server**
 ```bash
 cd TRAINCORE
 python -m http.server 8000
 # Open http://localhost:8000
+# Note: Create a separate Strava app with callback domain "localhost" for local testing
 ```
 
 **Option B: Node.js HTTP Server**
@@ -43,9 +48,14 @@ python -m http.server 8000
 cd TRAINCORE
 npx http-server
 # Opens automatically
+# Note: Create a separate Strava app with callback domain "localhost" for local testing
 ```
 
-### 3. Authorize with Strava
+### 3. Access on GitHub Pages
+
+Visit: **https://johnrypaulino.github.io/TRAINCORE/**
+
+### 4. Authorize with Strava
 
 1. Paste your Client ID and Client Secret into the dashboard
 2. Click "Save Credentials"
