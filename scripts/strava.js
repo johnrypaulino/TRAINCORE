@@ -165,7 +165,7 @@ function setStravaDisconnected() {
   document.getElementById('summaryStrip').style.display = 'none';   // Hide stats
   document.getElementById('runningSection').style.display = 'none'; // Hide running
   document.getElementById('mapSection').style.display = 'none';     // Hide map
-  document.getElementById('liftingSection').style.display = 'none'; // Hide lifting
+  document.getElementById('liftingSection').style.display = 'block'; // Keep lifting visible
   document.getElementById('runsList').innerHTML = '<div class="loading"><span class="spinner"></span>Connect Strava to load your runs…</div>';
 }
 
