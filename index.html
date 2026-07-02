@@ -220,6 +220,21 @@
       </div>
       <div class="lift-week-label" id="liftVolume">Total volume: — kg</div>
     </div>
+    <div class="hevy-sync-panel">
+      <div class="hevy-sync-header">
+        <div>
+          <div class="hevy-sync-title">Hevy Sync</div>
+          <div class="hevy-sync-subtitle">Push the active session to Hevy using your Pro API key</div>
+        </div>
+        <div class="hevy-sync-note">Exercise names must match Hevy templates</div>
+      </div>
+      <div class="hevy-sync-row">
+        <input class="form-input" id="hevyApiKeyInput" type="password" placeholder="Hevy API key" />
+        <button class="save-btn" type="button" onclick="saveHevyApiKey()">Save Key</button>
+        <button class="btn-primary" type="button" onclick="syncCurrentSessionToHevy()">Sync Current Session</button>
+      </div>
+      <div class="hevy-sync-status" id="hevySyncStatus">Not connected to Hevy yet.</div>
+    </div>
     <div class="exercise-list" id="exerciseList"></div>
   </div>
 </div>
@@ -280,6 +295,9 @@
 
 <!-- UI rendering and utilities -->
 <script src="scripts/ui.js?v=7911184"></script>
+
+<!-- Hevy sync integration -->
+<script src="scripts/hevy.js?v=7911184"></script>
 
 </body>
 </html>

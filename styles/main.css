@@ -218,6 +218,53 @@ body {
    ──────────────────────────────────────────────────────────────────── */
 .lift-week { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
 .lift-week-label { font-size: 0.78rem; color: var(--text-muted); }
+.hevy-sync-panel {
+  background: linear-gradient(180deg, rgba(30,127,214,0.08), rgba(30,127,214,0.03));
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 14px;
+}
+.hevy-sync-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+.hevy-sync-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text);
+}
+.hevy-sync-subtitle {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+.hevy-sync-note {
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  text-align: right;
+  max-width: 180px;
+  line-height: 1.4;
+}
+.hevy-sync-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 10px;
+  align-items: center;
+}
+.hevy-sync-status {
+  margin-top: 8px;
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+.hevy-sync-status.is-success { color: var(--green); }
+.hevy-sync-status.is-error { color: var(--red); }
+.hevy-sync-status.is-loading { color: var(--yellow); }
 .add-btn {  /* "+ Add Exercise" button */
   display: flex; align-items: center; gap: 5px;
   background: var(--teal-glow); border: 1px solid var(--teal-dim);
@@ -380,6 +427,12 @@ body {
   border: none; border-radius: 8px; padding: 9px 16px;
   font-weight: 700; font-size: 0.8rem; cursor: pointer;
   font-family: 'Poppins', sans-serif; white-space: nowrap;
+}
+
+@media (max-width: 860px) {
+  .hevy-sync-header { flex-direction: column; }
+  .hevy-sync-note { text-align: left; max-width: none; }
+  .hevy-sync-row { grid-template-columns: 1fr; }
 }
 
 /* ─── EMPTY STATE & LOADING ──────────────────────────────────────── */
